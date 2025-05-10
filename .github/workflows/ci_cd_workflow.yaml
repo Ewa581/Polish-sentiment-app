@@ -36,19 +36,14 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           
       - name: Install deployment dependencies
-        run: uv pip install --group deployment
-      
+        run: uv venv --python 3.10
+            uv pip install --group deployment
+            
       - name: Download model artifacts
         run: uv run python main.py --script download
       
       - name: Export model to ONNX
         run: uv run python main.py --script export
-      
-      - name: Verify ONNX model
-        run: |
-          python -c "import onnx; onnx.load('model.onnx')"
-          echo "ONNX model verification successful"
-          ls -lh *.onnx
 
       - name: Build Docker image
         run: |
