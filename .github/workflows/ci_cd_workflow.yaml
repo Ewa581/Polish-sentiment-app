@@ -33,12 +33,10 @@ jobs:
       - name: Setup uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
-      - name: Install deployment dependencies
-        run: uv venv --python 3.10
-            uv pip install --group deployment
             
+      - name: Install deployment dependencies
+        run:  uv sync --group deployment
+
       - name: Download model artifacts
         run: uv run python main.py --script download
       
