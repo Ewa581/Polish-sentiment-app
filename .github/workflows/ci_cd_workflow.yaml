@@ -34,34 +34,32 @@ jobs:
         run: uv run pytest tests/
 
   deployment:
-    name: Model Optimization with ONNX
-    runs-on: ubuntu-latest
-    needs: integration  
-    steps:
-      - uses: actions/checkout@v4
+  name: Model Optimization
+  runs-on: ubuntu-latest
+  needs: integration
+  steps:
+    - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+    - name: Debug: List files
+      run: ls -R src/scripts/  # Sprawdzamy czy pliki istnieją
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        uv pip install --group deployment
+        uv pip install onnx onnxruntime  # Jawna instalacja
 
-      - name: Install deployment dependencies
-        run: uv pip install --group deployment
+    - name: Download model (DEBUG)
+      run: |
+        echo "Current dir: $(pwd)"
+        python src/scripts/download_artifacts.py || echo "Download failed"
+        ls -lh  # Pokazuje pobrane pliki
 
-      - name: Download model artifacts
-        run: |
-          uv run python src/scripts/download_artifacts.py
-          
-      - name: Export to ONNX
-        run: |
-          uv run python src/scripts/export_model_to_onnx.py
-         
-      - name: Verify ONNX model
-        run: |
-          python -c "import onnx; onnx.load('model.onnx')"
-          echo "ONNX model validated successfully"
+    - name: Export to ONNX (DEBUG)
+      run: |
+        python src/scripts/export_model_to_onnx.py || echo "Export failed"
+        ls -lh *.onnx  # Szuka pliku model.onnx
+
+    - name: Verify ONNX
+      run: |
+        python -c "import onnx; onnx.load('model.onnx')"
+        echo "ONNX verification passed"
