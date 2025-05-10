@@ -49,3 +49,8 @@ jobs:
           python -c "import onnx; onnx.load('model.onnx')"
           echo "ONNX model verification successful"
           ls -lh *.onnx
+
+      - name: Build Docker image
+        run: |
+          docker build -t polish-sentiment-app-onnx:latest .
+          docker images polish-sentiment-app-onnx --format "Docker image size: {{.Size}}"
